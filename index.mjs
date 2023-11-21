@@ -102,7 +102,7 @@ export const handler = async (event) => {
     let body = JSON.parse(event.body);
     console.log(body)
 
-    if (body.action.toLowerCase() == 'request') {
+    if (body && body.action && body.action.toLowerCase() == 'request') {
         // Validate if email domain is allowed
         let domain_list = await readFile("my-domains.json","utf8");
         let domain_array = domain_list.split(/\r?\n/);
@@ -124,7 +124,7 @@ export const handler = async (event) => {
         // Send Email
         e = await sendEmail(body.email, secret, min)
     }
-    else if (body.action.toLowerCase() == 'verify') {
+    else if (body && body.action && body.action.toLowerCase() == 'verify') {
         let res = await getItemRecent(body.email);
         console.log('res', res)
 
