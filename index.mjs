@@ -32,6 +32,8 @@ async function getItemRecent(chat_id, chat_time_now) {
     } catch (error) {
         console.log("Error retrieving item from DynamoDB: ", error);
     }
+
+    return false;
 }
 
 async function putItem(user_email, message, expiry) {
@@ -52,10 +54,10 @@ async function putItem(user_email, message, expiry) {
         console.log("Error put to DynamoDB: ", error);
     }
 
-    return
+    return false;
 }
 
-async function sendEmail(user_email, secret) {
+async function sendEmail(user_email, secret, min) {
     let params = {
         Destination: {
           ToAddresses: [user_email]
@@ -64,11 +66,11 @@ async function sendEmail(user_email, secret) {
           Body: { 
             Html: {
              Charset: "UTF-8",
-             Data: "YOUR OTP IS "+secret
+             Data: "Your One-Time Password (OTP) for Login is "+secret+". This code is valid for "+min+" mins. If you did not make this request, you may ignore this email. Please do not reply to this email."
             },
             Text: {
              Charset: "UTF-8",
-             Data: "YOUR OTP IS "+secret
+             Data: "Your One-Time Password (OTP) for Login is "+secret+". This code is valid for "+min+" mins. If you did not make this request, you may ignore this email. Please do not reply to this email."
             }
            },
            Subject: {
@@ -76,14 +78,17 @@ async function sendEmail(user_email, secret) {
             Data: "YOUR OTP IS "+secret
            }
           },
-        Source: 'go@whyys.xyz'
+        Source: 'otp@whyys.xyz'
     };
 
     try {
         await ses.sendEmail(params).promise();
+        return true;
     } catch (error) {
         console.log("Error trigger SES: ", error);
     }
+
+    return false;
 }
 
 export const handler = async (event) => {
@@ -106,26 +111,26 @@ export const handler = async (event) => {
     }
 
     // Generate 6D OTP save into DDB
+    const min = 6;
     let secret = '000000';
     let expiry = ts;
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
-        expiry = ts + 600000 //10 min
+        expiry = ts + ( 60000 * min)
 
         await putItem(body.email, secret, expiry)
     }
 
     // Send Email
-    let e = await sendEmail(body.email, secret)
+    let e = await sendEmail(body.email, secret, min)
     
 
     const response = {
         statusCode: 200,
         body: {
             "otp": otp_allowed,
-            "email": body.email,
-            "expire": new Date(expiry).toLocaleString('en-US', {timeZone: 'Asia/Singapore'}),
-            "secret": secret
+            "email": (e) ? body.email : '',
+            "expire": new Date(expiry).toLocaleString('en-US', {timeZone: 'Asia/Singapore'})
         }
     };
     return response;
