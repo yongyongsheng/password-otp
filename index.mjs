@@ -127,7 +127,7 @@ export const handler = async (event) => {
         let res = await getItemRecent(body.email);
         console.log('result', res)
         if (res) {
-            console.log(res[0].message.S, res[0].expiry.S)
+            console.log(res[0].message.S, res[0].expiry.S, ts)
 
             if (body && body.otp && body.otp == res[0].message.S) {
                 e = true;
