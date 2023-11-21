@@ -1,0 +1,22 @@
+{
+  "name": "gpt-blogger-influencer",
+  "version": "1.0.0",
+  "description": "GPT writes blog post and publish to Medium",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yongyongsheng/gpt-blogger-influencer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yongyongsheng/gpt-blogger-influencer/issues"
+  },
+  "homepage": "https://github.com/yongyongsheng/gpt-blogger-influencer#readme",
+  "dependencies": {
+    "axios": "^1.5.1"
+  }
+}

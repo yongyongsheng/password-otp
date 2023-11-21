@@ -1,0 +1,4 @@
+.github/*
+.github/workflows/main.yml
+node_modules/*
+package-lock.json
