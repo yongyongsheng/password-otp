@@ -26,7 +26,7 @@ export const handler = async (event) => {
     let expiry = ts;
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
-        expiry = new Date(ts.getTime() + 5*60000)
+       // expiry = new Date(ts.getTime() + 5*60000)
     }
 
     // Send Email
