@@ -1,3 +1,6 @@
+const ddb_table = 'pwd-otp' // process.env.ddb_table
+const alive_min = 6 // process.env.alive_min
+
 import fs from "fs";
 import util from "util"
 const readFile = util.promisify(fs.readFile);
@@ -16,7 +19,7 @@ const ses = new AWS.SES({
 
 async function getItemRecent(user_email) { 
     let params = {
-        TableName: "pwd-otp",
+        TableName: ddb_table,
         KeyConditionExpression: "user_email = :user_email",
         ExpressionAttributeValues: {
             ":user_email": { S: `${user_email}` }
@@ -36,7 +39,7 @@ async function getItemRecent(user_email) {
 
 async function delItem(user_email) { 
     let params = {
-        TableName: "pwd-otp",
+        TableName: ddb_table,
         Key: {
             "user_email": { S: `${user_email}` }
         }
@@ -54,7 +57,7 @@ async function delItem(user_email) {
 
 async function putItem(user_email, message, expiry) {
     let params = {
-        TableName: 'pwd-otp',
+        TableName: ddb_table,
         Item: {
             "user_email": { S: `${user_email}` },
             "message": { S: `${message}` },
@@ -73,7 +76,8 @@ async function putItem(user_email, message, expiry) {
     return false;
 }
 
-async function sendEmail(user_email, secret, min) {
+async function sendEmail(user_email, secret) {
+    let min = alive_min;
     let params = {
         Destination: {
           ToAddresses: [user_email]
@@ -129,17 +133,16 @@ export const handler = async (event) => {
             }
         }
 
-        // Generate 6D OTP save into DDB
-        const min = 6;
+        // Generate 6D OTP save into DDB 
         if (otp_allowed){
             secret = Math.floor(100000 + Math.random() * 900000);
-            expiry = ts + ( 60000 * min)
+            expiry = ts + ( 60000 * alive_min)
 
             await putItem(body.email, secret, expiry)
         }
 
         // Send Email
-        e = await sendEmail(body.email, secret, min)
+        e = await sendEmail(body.email, secret)
     }
     else if (body && body.action && body.action.toLowerCase() == 'verify') {
         let res = await getItemRecent(body.email);
