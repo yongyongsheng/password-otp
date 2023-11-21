@@ -144,7 +144,7 @@ export const handler = async (event) => {
     else if (body && body.action && body.action.toLowerCase() == 'verify') {
         let res = await getItemRecent(body.email);
         console.log('results', res)
-        if (res) {
+        if (res && res.length>0) {
             console.log('result', res[0].expiry.S, res[0].message.S)
 
             expiry = parseInt(res[0].expiry.S)
