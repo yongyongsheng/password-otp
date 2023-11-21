@@ -10,6 +10,7 @@ export const handler = async (event) => {
     let body = JSON.parse(event.body);
     console.log('body',body)
     console.log('body.email',body.email)
+    console.log('body.email',body.email)
 
     // Validate if email domain is allowed
     let otp_allowed = false
@@ -26,7 +27,7 @@ export const handler = async (event) => {
     let expiry = ts;
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
-        expiry = ts + 30000
+        expiry = ts + 600000 //10 min
     }
 
     // Send Email
@@ -37,7 +38,7 @@ export const handler = async (event) => {
         body: {
             "otp": otp_allowed,
             "email": body.email,
-            "expire": expiry.toLocaleString('en-US', {timeZone: 'Asia/Singapore'}),
+            "expire": new Date(expiry).toLocaleString('en-US', {timeZone: 'Asia/Singapore'}),
             "secret": secret
         }
     };
