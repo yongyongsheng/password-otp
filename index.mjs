@@ -17,7 +17,10 @@ const ses = new AWS.SES({
 async function getItemRecent(user_email) { 
     let params = {
         TableName: "pwd-otp",
-        KeyConditionExpression: "user_email = :user_email"
+        KeyConditionExpression: "user_email = :user_email",
+        ExpressionAttributeValues: {
+            ":user_email": { S: `${user_email}` }
+        }
     };
 
     try {
