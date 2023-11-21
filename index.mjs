@@ -131,6 +131,7 @@ export const handler = async (event) => {
             console.log(ts)
 
             if (body && body.otp && body.otp == res[0].message.S && parseInt(res[0].expiry.S) > ts) {
+                expiry = parseInt(res[0].expiry.S) 
                 e = true;
                 otp_allowed = true;
             }
