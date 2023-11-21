@@ -19,7 +19,7 @@ export const handler = async (event) => {
     let domain_array = domain_list.split(/\r?\n/);
     for(var i=0; i<domain_array.length; i++){
         if (body.email.toLowerCase().indexOf(domain_array[i]) > 0) {
-            let otp_allowed = true;
+            otp_allowed = true;
         }
     }
 
