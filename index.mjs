@@ -3,6 +3,54 @@ import util from "util"
 const readFile = util.promisify(fs.readFile);
 const ts = new Date().getTime();
 
+import AWS from "aws-sdk";
+
+const ddb = new AWS.DynamoDB({
+    apiVersion: '2012-08-10',
+    region: 'ap-southeast-1'
+});
+
+async function getItemRecent(chat_id, chat_time_now) { 
+    let params = {
+        TableName: "pwd-otp",
+        KeyConditionExpression: "chat_id = :chat_id AND #chat_time > :chat_time",
+        ExpressionAttributeNames: { "#chat_time": "chat_time" },
+        ExpressionAttributeValues: {
+            ":chat_id": { S: `${chat_id}` },
+            ":chat_time": { N: `${chat_time}` }
+        }
+    };
+
+    try {
+        let result = await ddb.query(params).promise();
+        //console.log("getItem", result)
+        return result.Items;
+    } catch (error) {
+        console.log("Error retrieving item from DynamoDB: ", error);
+    }
+}
+
+async function putItem(user_email, message, expiry) {
+    let params = {
+        TableName: 'pwd-otp',
+        Item: {
+            "user_email": { S: `${user_email}` },
+            "message": { S: `${message}` },
+            "expiry": { S: `${expiry}` }
+        }
+    };
+
+    // Call DynamoDB to add the item to the 
+    try {
+        await ddb.putItem(params).promise();
+        return true;
+    } catch (error) {
+        console.log("Error put to DynamoDB: ", error);
+    }
+
+    return
+}
+
 export const handler = async (event) => {
 
     console.log(event)
@@ -28,6 +76,8 @@ export const handler = async (event) => {
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
         expiry = ts + 600000 //10 min
+
+        await putItem(body.email, secret, expiry)
     }
 
     // Send Email
