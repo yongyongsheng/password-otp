@@ -80,7 +80,7 @@ async function sendEmail(user_email, secret) {
     };
 
     try {
-        await sesv2.sendEmail(params).promise();
+        await ses.sendEmail(params).promise();
     } catch (error) {
         console.log("Error trigger SES: ", error);
     }
