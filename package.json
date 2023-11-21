@@ -18,6 +18,7 @@
   "homepage": "https://github.com/yongyongsheng/gpt-blogger-influencer#readme",
   "dependencies": {
     "axios": "^1.5.1",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "util": "^0.12.5"
   }
 }

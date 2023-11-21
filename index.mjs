@@ -1,4 +1,6 @@
 import fs from "fs";
+import util from "util"
+const readFile = util.promisify(fs.readFile);
 const ts = new Date().toLocaleString('en-US', {timeZone: 'Asia/Singapore'});
 
 export const handler = async (event) => {
@@ -13,7 +15,7 @@ export const handler = async (event) => {
 
     // Validate if email domain is allowed
     let otp_allowed = false
-    const data = await fs.readFile("my-domains.json");
+    let data = await readFile("my-domains.json");
     console.log(data);
 
     // Generate 6D OTP save into DDB
