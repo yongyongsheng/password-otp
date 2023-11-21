@@ -34,6 +34,24 @@ async function getItemRecent(user_email) {
     return false;
 }
 
+async function delItem(user_email) { 
+    let params = {
+        TableName: "pwd-otp",
+        Key: {
+            "user_email": { S: `${user_email}` }
+        }
+    };
+
+    try {
+        let result = await ddb.deleteItem(params).promise();
+        return true;
+    } catch (error) {
+        console.log("Error retrieving item from DynamoDB: ", error);
+    }
+
+    return false;
+}
+
 async function putItem(user_email, message, expiry) {
     let params = {
         TableName: 'pwd-otp',
@@ -135,6 +153,8 @@ export const handler = async (event) => {
             if (body && body.otp && body.otp == secret && expiry > ts) {
                 e = true;
                 otp_allowed = true;
+
+                await delItem(body.email)
             }
         }
     }
