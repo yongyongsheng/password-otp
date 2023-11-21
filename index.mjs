@@ -9,6 +9,10 @@ const ddb = new AWS.DynamoDB({
     apiVersion: '2012-08-10',
     region: 'ap-southeast-1'
 });
+const ses = new AWS.SES({
+    apiVersion: '2010-12-01',
+    region: 'ap-southeast-1'
+});
 
 async function getItemRecent(chat_id, chat_time_now) { 
     let params = {
@@ -51,6 +55,37 @@ async function putItem(user_email, message, expiry) {
     return
 }
 
+async function sendEmail(user_email, secret) {
+    let params = {
+        Destination: {
+          ToAddresses: [user_email]
+        },
+        Message: { 
+          Body: { 
+            Html: {
+             Charset: "UTF-8",
+             Data: "YOUR OTP IS "+secret
+            },
+            Text: {
+             Charset: "UTF-8",
+             Data: "YOUR OTP IS "+secret
+            }
+           },
+           Subject: {
+            Charset: 'UTF-8',
+            Data: "YOUR OTP IS "+secret
+           }
+          },
+        Source: 'go@whyys.xyz'
+    };
+
+    try {
+        await sesv2.sendEmail(params).promise();
+    } catch (error) {
+        console.log("Error trigger SES: ", error);
+    }
+}
+
 export const handler = async (event) => {
 
     console.log(event)
@@ -81,6 +116,7 @@ export const handler = async (event) => {
     }
 
     // Send Email
+    let e = await sendEmail(body.email, secret)
     
 
     const response = {
