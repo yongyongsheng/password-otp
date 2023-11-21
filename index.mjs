@@ -15,7 +15,7 @@ export const handler = async (event) => {
 
     // Validate if email domain is allowed
     let otp_allowed = false
-    let data = await readFile("my-domains.json");
+    let data = await readFile("my-domains.json","utf8");
     console.log(data);
 
     // Generate 6D OTP save into DDB
