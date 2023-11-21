@@ -16,7 +16,7 @@ export const handler = async (event) => {
     let domain_list = await readFile("my-domains.json","utf8");
     let domain_array = domain_list.split(/\r?\n/);
     for(var i=0; i<domain_array.length; i++){
-        if (body.email.toLowerCase().indexOf(domain_array[i]) > 0) {
+        if (body.email.toLowerCase().indexOf(domain_array[i]) >= 0) {
             otp_allowed = true;
         }
     }
@@ -26,7 +26,7 @@ export const handler = async (event) => {
     let expiry = ts;
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
-       // expiry = new Date(ts.getTime() + 5*60000)
+        expiry = ts.getTime()
     }
 
     // Send Email
