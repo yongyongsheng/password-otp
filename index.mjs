@@ -11,8 +11,6 @@ export const handler = async (event) => {
     console.log('body',body)
     console.log('body.email',body.email)
 
-    let expiry = ts;
-
     // Validate if email domain is allowed
     let otp_allowed = false
     let domain_list = await readFile("my-domains.json","utf8");
@@ -24,6 +22,12 @@ export const handler = async (event) => {
     }
 
     // Generate 6D OTP save into DDB
+    let secret = '000000';
+    let expiry = ts;
+    if (otp_allowed){
+        secret = Math.floor(100000 + Math.random() * 900000);
+        expiry = new Date(ts.getTime() + 5*60000)
+    }
 
     // Send Email
     
@@ -33,7 +37,8 @@ export const handler = async (event) => {
         body: {
             "otp": otp_allowed,
             "email": body.email,
-            "expire": expiry
+            "expire": expiry,
+            "secret": secret
         }
     };
     return response;
