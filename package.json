@@ -1,21 +1,21 @@
 {
   "name": "password-otp",
   "version": "1.0.0",
-  "description": "GPT writes blog post and publish to Medium",
+  "description": "Generate and verify OTP",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yongyongsheng/gpt-blogger-influencer.git"
+    "url": "git+https://github.com/yongyongsheng/password-otp.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yongyongsheng/gpt-blogger-influencer/issues"
+    "url": "https://github.com/yongyongsheng/password-otp/issues"
   },
-  "homepage": "https://github.com/yongyongsheng/gpt-blogger-influencer#readme",
+  "homepage": "https://github.com/yongyongsheng/password-otp#readme",
   "dependencies": {
     "aws-sdk": "^2.1500.0",
     "axios": "^1.5.1",
