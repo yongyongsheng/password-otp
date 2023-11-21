@@ -125,10 +125,15 @@ export const handler = async (event) => {
     }
     else if (body && body.action && body.action.toLowerCase() == 'verify') {
         let res = await getItemRecent(body.email);
-        console.log('res', res)
+        console.log('result', res)
+        if (res) {
+            console.log(res[0].message.S, res[0].expiry.S)
 
-        e = true;
-        otp_allowed = true;
+            if (body && body.otp && body.otp == res[0].message.S) {
+                e = true;
+                otp_allowed = true;
+            }
+        }
     }
     
 
