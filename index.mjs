@@ -1,7 +1,7 @@
 import fs from "fs";
 import util from "util"
 const readFile = util.promisify(fs.readFile);
-const ts = new Date().toLocaleString('en-US', {timeZone: 'Asia/Singapore'});
+const ts = new Date().getTime();
 
 export const handler = async (event) => {
 
@@ -26,7 +26,7 @@ export const handler = async (event) => {
     let expiry = ts;
     if (otp_allowed){
         secret = Math.floor(100000 + Math.random() * 900000);
-        expiry = ts.getTime()
+        expiry = ts + 30000
     }
 
     // Send Email
@@ -37,7 +37,7 @@ export const handler = async (event) => {
         body: {
             "otp": otp_allowed,
             "email": body.email,
-            "expire": expiry,
+            "expire": expiry.toLocaleString('en-US', {timeZone: 'Asia/Singapore'}),
             "secret": secret
         }
     };
