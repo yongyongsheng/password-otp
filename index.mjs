@@ -14,14 +14,13 @@ const ses = new AWS.SES({
     region: 'ap-southeast-1'
 });
 
-async function getItemRecent(chat_id, chat_time_now) { 
+async function getItemRecent(user_email) { 
     let params = {
         TableName: "pwd-otp",
-        KeyConditionExpression: "chat_id = :chat_id AND #chat_time > :chat_time",
-        ExpressionAttributeNames: { "#chat_time": "chat_time" },
+        KeyConditionExpression: "user_email = :user_email",
+        ExpressionAttributeNames: { "#user_email": "user_email" },
         ExpressionAttributeValues: {
-            ":chat_id": { S: `${chat_id}` },
-            ":chat_time": { N: `${chat_time}` }
+            ":user_email": { S: `${user_email}` }
         }
     };
 
@@ -75,7 +74,7 @@ async function sendEmail(user_email, secret, min) {
            },
            Subject: {
             Charset: 'UTF-8',
-            Data: "YOUR OTP IS "+secret
+            Data: "LOGIN OTP IS "+secret
            }
           },
         Source: 'otp@whyys.xyz'
@@ -94,40 +93,50 @@ async function sendEmail(user_email, secret, min) {
 export const handler = async (event) => {
 
     console.log(event)
-    
-    let body = JSON.parse(event.body);
-    console.log('body',body)
-    console.log('body.email',body.email)
-    console.log('body.email',body.email)
 
-    // Validate if email domain is allowed
-    let otp_allowed = false
-    let domain_list = await readFile("my-domains.json","utf8");
-    let domain_array = domain_list.split(/\r?\n/);
-    for(var i=0; i<domain_array.length; i++){
-        if (body.email.toLowerCase().indexOf(domain_array[i]) >= 0) {
-            otp_allowed = true;
-        }
-    }
-
-    // Generate 6D OTP save into DDB
-    const min = 6;
+    let otp_allowed = false;
     let secret = '000000';
     let expiry = ts;
-    if (otp_allowed){
-        secret = Math.floor(100000 + Math.random() * 900000);
-        expiry = ts + ( 60000 * min)
+    let e = false;
+    
+    let body = JSON.parse(event.body);
+    console.log(body)
 
-        await putItem(body.email, secret, expiry)
+    if (body.action.toLowerCase() == 'request') {
+        // Validate if email domain is allowed
+        let domain_list = await readFile("my-domains.json","utf8");
+        let domain_array = domain_list.split(/\r?\n/);
+        for(var i=0; i<domain_array.length; i++){
+            if (body.email.toLowerCase().indexOf(domain_array[i]) >= 0) {
+                otp_allowed = true;
+            }
+        }
+
+        // Generate 6D OTP save into DDB
+        const min = 6;
+        if (otp_allowed){
+            secret = Math.floor(100000 + Math.random() * 900000);
+            expiry = ts + ( 60000 * min)
+
+            await putItem(body.email, secret, expiry)
+        }
+
+        // Send Email
+        e = await sendEmail(body.email, secret, min)
     }
+    else if (body.action.toLowerCase() == 'verify') {
+        let res = await getItemRecent(body.email);
+        console.log('res', res)
 
-    // Send Email
-    let e = await sendEmail(body.email, secret, min)
+        e = true;
+        otp_allowed = true;
+    }
     
 
     const response = {
         statusCode: 200,
         body: {
+            "action": (body && body.action) ? body.action : '',
             "otp": otp_allowed,
             "email": (e) ? body.email : '',
             "expire": new Date(expiry).toLocaleString('en-US', {timeZone: 'Asia/Singapore'})
